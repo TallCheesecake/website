@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects | MaxBlog</title>
+  <link rel="icon" href="/static/favicon.jpg">
+  <link rel="stylesheet" href="./style.css?v=3">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Navigation -->
+
+    <nav>
+      <ul>
+        <li class="logo">
+          <a href="./index.html">
+            Portfolio
+          </a>
+        </li>
+      	<li>
+          <a href="./index.html">
+            Home
+          </a>
+        </li>
+        <li>
+          <a href="./blog.html">
+            Blog 
+          </a>
+        </li>
+        <li>
+          <a href="./project.html">
+            Projects
+          </a>
+        </li>
+        <li>
+          <a href="./contact.html">
+            Contact
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+
+  <!-- Main Content -->
+  <div class="content-container">
+
+    <!-- Left Column: Main content -->
+    <div class="column-left">
+
+      <!-- About This Project -->
+      <header>Featured Projects</header>
+      <div class="left-top">
+        <div class="project-card">
+		<h3>Project One | Rust</h3>
+          <p>Short description highlighting the features of the project.</p>
+          <a href="https://github.com/TallCheesecake" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+        <div class="project-card">
+          <h3>Lox Interpreter | Rust</h3>
+          <p>Short description highlighting the features of the project.</p>
+          <a href="https://github.com/TallCheesecake" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+
+        <div class="project-card">
+          <h3>Project Two | C</h3>
+          <p>Short description highlighting the features of the project.</p>
+          <a href="https://github.com/TallCheesecake" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+      </div>
+
+      <!-- Featured Projects -->
+      <header>Projects</header>
+      <div class="left-bottom">
+        <!-- Example project card -->
+
+        <div class="project-card">
+          <h3>Project One</h3>
+          <p>Short description highlighting the features of the project.</p>
+          <a href="https://github.com/TallCheesecake" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+
+        <div class="project-card">
+          <h3>Project Two</h3>
+          <p>Short description highlighting the features of the project.</p>
+          <a href="https://github.com/TallCheesecake" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+
+        <div class="project-card">
+          <h3>Project Three</h3>
+          <p>Short description keyword the features of the project.</p>
+          <a href="https://github.com/TallCheesecake" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="column-toc">
+	    <header> Search Projects</header>
+      <input type="text" id="search-project" placeholder="Search (keywords only)...">
+    </div>
+  </div>
+
+  <!-- Footer / Social Links -->
+  <div class="socials-container">
+          <a href="https://linkedin.com/max-faber-" target="_blank" rel="noopener noreferrer">Linkedin</a>|
+          <a href="https://github.com/TallCheesecake" target="_blank" rel="noopener noreferrer">GitHub</a>
+  </div>
+
+  <script>
+
+    const searchInput = document.getElementById("search-project");
+    const projects = document.querySelectorAll(".left-top .project-card, .left-bottom .project-card");
+
+    searchInput.addEventListener("input", () => {
+      const query = searchInput.value.toLowerCase().trim();
+
+      projects.forEach(project => {
+        const title = project.querySelector("h3").textContent.toLowerCase().trim();
+        const desc= project.querySelector("p").textContent.toLowerCase().trim();
+
+        if (title.includes(query) || desc.includes(query)) {
+          project.style.display = "block"; // show matching project
+        } else {
+          project.style.display = "none"; // hide non-matching project
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

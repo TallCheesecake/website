@@ -1,0 +1,224 @@
+:root {
+  --accent-blue: #5b8cff;  /* main interactive color */
+  --accent-orange: #CC5500; /* highlights / callouts */
+  --accent-gray: #d4d4d4; /* highlights / callouts */
+  --bg-dark: #111111; /* very dark panel background */
+}
+
+/* layout and design */
+body {
+  margin: 0;
+  background: #000;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: "JetBrains Mono", monospace;
+}
+ul {
+  list-style-type: none;
+  align-items: baseline;
+  padding: 0px;
+  margin: 0;
+  display: flex;
+  gap: 20px;
+}
+
+.highlight {
+  color: var(--accent-orange);
+  font-weight: 500;
+}
+
+ul a {
+  color: rgba(255, 255, 255, 0.9); /* default text */
+  text-decoration: none;
+  padding: 8px 0;
+  font-size: 0.875rem;
+  transition: color 0.3s ease, opacity 0.3s ease; /* combine transitions */
+}
+
+ul a:hover {
+  opacity: 0.7;
+  color: var(--accent-blue);
+}
+/*NavCC5500 and 5b8cff section*/
+nav {
+  position: sticky;
+  z-index: 1000; /* make sure it’s above other content */
+    top: 0;      /* stick to the top */
+	padding: 12px;
+  background: var(--bg-dark);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.logo a {
+  font-size: 1.125rem;
+  /* border-bottom: 1px solid var(--accent); */
+  font-weight: 500;
+}
+
+li.logo {
+    margin-right: auto;
+}
+
+
+/*TOC section*/
+
+.content-bloc img {
+  display: block;       /* make image a block element */
+  margin: 16px auto;    /* center horizontally, with vertical spacing */
+  max-width: 100%;      /* responsive, doesn’t overflow container */
+  height: auto;         /* maintain aspect ratio */
+  border-radius: 8px;   /* optional, nicer rounded corners */
+}
+
+.content-container {
+  display: flex;
+  max-width: 1100px;
+  margin: 64px auto;
+  gap: 48px;
+  padding: 0 24px;
+}
+
+.column-toc {
+  flex: 1;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.9rem;
+}
+
+.column-left header,
+.column-toc header {
+  font-weight: 500;
+  color: var(--accent-gray);
+  font-size: 1.9rem;
+  letter-spacing: -0.05em;
+}
+/*TODO: maybe remove*/
+.column-toc strong {
+	display: flex;
+	font-weight: 500;
+	line-height: 1.1;
+}
+.column-toc ul {
+	list-style: none;
+	display: flex;
+	flex-direction: column;
+	padding: 0;
+	margin: 0;
+}
+.column-left-about{
+
+  line-height:1.6;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-bottom: 12px;  /* space between text and border */
+  margin-bottom: 12px;   /* space to bottom section */
+}
+.column-left {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+/* .column-left header { */
+/*   font-weight: 500; */
+/*   color: #fff; */
+/*   font-size: 1.9rem; */
+/*   letter-spacing: -0.05em; */
+/* } */
+.column-left-body{
+  line-height:1.6;
+	flex: 1;                /* evenly split the available height */
+}
+
+.socials-container { display: flex;
+	/* turn container into a flex container */ flex-direction: row;
+	/* side by side */ justify-content: center;
+	/* side by side */ align-items: center;
+	position: relative; 
+	gap: 50px;                  /* optional spacing between columns */ 
+}
+
+.socials-container a {
+  color: var(--accent-blue); /* default color */
+  text-decoration: none;
+  padding: 8px 0;
+  transition: color 0.3s ease, opacity 0.3s ease; /* combine transitions */
+}
+
+
+.socials-container a:hover {
+  opacity: 0.7;
+  color: var(--accent-blue);
+}
+.content-blog {
+  display: flex;
+  flex-direction: column;   
+  justify-content: flex-start;
+  max-width: 1100px;        /* sets the “centerable” width */
+  margin: 64px auto;        /* top/bottom: 64px, left/right: auto → centers horizontally */
+  gap: 48px;                
+  padding: 0 24px;          
+  box-sizing: border-box;   /* ensures padding doesn't break max-width */
+}
+.contacts {
+  display: flex;
+  justify-content: center; /* horizontal only */
+  flex-direction: column;  /* stack vertically */
+}
+
+.contacts-container {
+  display: flex;
+  justify-content: center;   /* center horizontally */
+  align-items: center;       /* center vertically */
+  min-height: 100vh;         /* full viewport height */
+  padding: 24px;
+}
+
+.contacts {
+  display: flex;
+  flex-direction: column;    /* stack header and center box vertically */
+  gap: 24px;                 /* spacing between header and box */
+  text-align: center;        /* center text inside */
+}
+.contacts ul {
+  padding: 24px 32px;
+  border-radius: 8px;
+  min-width: 220px;          /* optional: ensures box has some width */
+}
+
+
+.project-card a {
+  color: var(--accent-blue); /* default color */
+  text-decoration: none;
+  padding: 8px 0;
+  transition: color 0.3s ease, opacity 0.3s ease; /* combine transitions */
+}
+
+.project-card a:hover {
+  opacity: 0.7;
+  color: var(--accent-blue);
+}
+
+#search-project {
+  width: 100%;
+  padding: 4px 0;                     /* reduce vertical padding for minimal look */
+  font-size: 0.9rem;
+  border: none;                        /* remove default border */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3); /* subtle underline */
+  background: transparent;             /* no background */
+  color: #fff;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+#search-project::placeholder {
+  color: rgba(255, 255, 255, 0.5);    /* lighter placeholder text */
+  font-style: italic;
+}
+
+#search-project:focus {
+  outline: none;
+  border-bottom-color: #fff;           /* highlight underline on focus */
+}
+
+.project-card.highlighted {
+  color: var(--accent-orange);  /* main interactive color */
+;
+}
