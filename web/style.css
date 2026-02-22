@@ -69,6 +69,14 @@ li.logo {
   border-radius: 8px;   /* optional, nicer rounded corners */
 }
 
+.column-left img {
+  display: block;       /* make image a block element */
+  margin: 20px auto;    /* center horizontally, with vertical spacing */
+  max-width: 100%;      /* responsive, doesn’t overflow container */
+  height: auto;         /* maintain aspect ratio */
+  border-radius: 8px;   /* optional, nicer rounded corners */
+}
+
 .content-container {
   display: flex;
   max-width: 1100px;
@@ -148,6 +156,12 @@ li.logo {
 	gap: 50px;                  /* optional spacing between columns */ 
 }
 
+.column-left-body a {
+  color: var(--accent-blue); /* default color */
+  text-decoration: none;
+  padding: 8px 0;
+  transition: color 0.3s ease, opacity 0.3s ease; /* combine transitions */
+}
 .socials-container a {
   color: var(--accent-blue); /* default color */
   text-decoration: none;
