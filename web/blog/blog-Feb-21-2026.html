@@ -1,0 +1,402 @@
+<html>
+  <head>
+    <title>maxblog</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../style.css?v=3">
+    <link rel="stylesheet" href="../highlights/styles/base16/black-metal-mayhem.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <li class="logo">
+          <a href="../index.html">
+            Portfolio
+          </a>
+        </li>
+        <li>
+          <a href="../index.html">
+            Home
+          </a>
+        </li>
+        <li>
+          <a href="../blog.html">
+            Blog 
+          </a>
+        </li>
+        <li>
+          <a href="../project.html">
+            Projects
+          </a>
+        </li>
+        <li>
+          <a href="../contact.html">
+            Contact
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="content-container">
+      <div class="column-left">
+        <h1>Intro</h1>
+
+        <em>
+          NOTE: A lot of these examples are taken from the
+          <a
+              href="https://doc.rust-lang.org/nomicon/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >
+              rustinomicon
+          </a>
+        </em>
+
+        <div class="column-left-body">
+          <h2>Preface / Prereqs</h2>
+
+          <p>
+          Be comfortable with Rust. When we say <em>co</em> or
+          <em>contravariant</em> over
+          <code style="font-size: 1.2rem; font-weight: bold;">T</code>,
+          we are not referring to
+          <code style="font-size: 1.2rem; font-weight: bold;">T</code>'s memory layout.
+          Instead, we are talking about its
+          <strong>type-theory meaning</strong>.
+          </p>
+
+          <p>
+          The theory behind all of this can feel a little dry, but we need some of it
+          in order to talk about variance precisely.
+          A type constructor <code style="font-size: 1.2rem; font-weight: bold;">F&lt;T&gt;</code>
+          (read: “F defined over T” or “F generic over T”) is something that takes a
+          type and produces a new type. For example,
+          <code style="font-size: 1.2rem; font-weight: bold;">Box&lt;T&gt;</code>
+          is not the same as
+          <code style="font-size: 1.2rem; font-weight: bold;">T</code>.
+          Their guarantees and invariants are different. And as such we can say that Box<T> is a new type.
+
+          </p>
+
+          <p>
+          A subtype <code style="font-size: 1.2rem; font-weight: bold;">T1</code>
+          of a supertype
+          <code style="font-size: 1.2rem; font-weight: bold;">T2</code>
+          is written as:
+          <code style="font-size: 1.2rem; font-weight: bold;">T1 &lt;: T2</code>.
+          This means that anywhere a
+          <code style="font-size: 1.2rem; font-weight: bold;">T2</code>
+          is required, we may substitute a
+          <code style="font-size: 1.2rem; font-weight: bold;">T1</code>.
+          However, the reverse is not necessarily true.
+          </p>
+
+          <p>
+          Intuitively, you can think of
+          <code style="font-size: 1.2rem; font-weight: bold;">T1</code>
+          as being a strictly more useful type.
+          For example, consider <em>Dog</em> and <em>Animal</em>.
+          If we only rely on behaviors guaranteed by <em>Animal</em>,
+          then a <em>Dog</em> is acceptable — and even more specific —
+          because every Dog is an Animal.
+          The guarantees we can make about a Dog (its invariants)
+          are strictly stronger than those of Animal in this context.
+          So we say:
+          <code style="font-size: 1.2rem; font-weight: bold;">Dog &lt;: Animal</code>.
+Please note that this is a very intuitive analogy but can get very misleading and out of hand, try and stick to the type theory and not animals.
+</p>
+          <h1>Example:</h1>
+
+          <pre style="font-size: 1.5rem; font-weight: bold; padding: 5px;">
+<code class="rust">
+let mut hello = "hello";
+{
+    let world = String::from("world");
+    hello = &world;
+}
+println!("{hello}");
+</code>
+          </pre>
+
+          <p>
+          The intuitive problem is that <code style="font-size: 1.2rem; font-weight=bold;">world</code> gets dropped in the
+          block, and then we try to read from it through <code style="font-size: 1.2rem; font-weight=bold;">hello</code>
+          after the drop.
+          </p>
+
+          <p>
+          The reason this is relavent is that the reason we can't do this is exactly due to the rust compilers rules
+          on subtyping and variance.
+          (your reading a niche blog on subtying and variance I'm pretty sure your good on motivation)
+          </p>
+          <h1>Variance</h1>
+          <p>
+          There are three main variances in Rust: Contravariant, Covariant,
+          and Invariant.
+          </p>
+          <h2>Functions (Contravariance)</h2>
+
+          <p>
+          T1 and T2 are types. For example, Option<T> is a type, and i64 is a type. We define types very specifically by their invariants.</br></br>
+
+In the case of Option<T>, one invariant is that it must always be either None or Some(T). If it were instead None or Maybe(T), then by definition it could not be called an Option.
+          </p>
+          
+          <pre style="font-size: 1.5rem; font-weight: bold; padding: 5px;">
+<code class="rust">
+
+T1 = Dog
+T2 = Animal
+
+Fn(T1) = functions that take Dog
+Fn(T2) = functions that take Animal
+
+Fn(T2) <: Fn(T1)
+</code>
+          </pre>
+
+<p>
+  A function that can take an <strong>Animal</strong> can also take
+  a <strong>Dog</strong>. However, a function that only takes a
+  <strong>Dog</strong> cannot accept all <strong>Animals</strong>.
+</p>
+
+<p>
+  Therefore, we can say that the type
+  <code style="font-size: 1.2rem; font-weight: bold;">Fn(T2)</code>
+  is a subtype of
+  <code style="font-size: 1.2rem; font-weight: bold;">Fn(T1)</code>.
+  Everywhere we might want a function that takes a
+  <code style="font-size: 1.2rem; font-weight: bold;">T1</code>
+  (Dog), we can instead provide a function that takes a
+  <code style="font-size: 1.2rem; font-weight: bold;">T2</code>
+  (Animal). The reverse is not true, because not all Animals are Dogs.
+</p>
+
+<p>
+  This is called <strong>contravariance</strong>, because the usual
+  subtyping relationship has been flipped:
+</p>
+
+<p>
+  <code style="font-size: 1.2rem; font-weight: bold;">
+    T1 &lt;: T2
+  </code>
+  becomes
+  <code style="font-size: 1.2rem; font-weight: bold;">
+    Fn(T2) &lt;: Fn(T1)
+  </code>.
+</p>
+
+<p>
+  That reversal of the subtype relationship is exactly what
+  contravariance means.
+</p>
+
+<p>
+  An easier way to think about this is in terms of lifetimes.
+  As explained in Jon Gjengset’s
+  <a
+    href="https://www.youtube.com/watch?v=iVYWDIW71jk"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Crust of Rust: Subtyping and Variance
+  </a>,
+  we can consider two function types:
+</p>
+          <pre style="font-size: 1.5rem; font-weight: bold; padding: 5px;">
+<code class="rust">
+let x: Fn(&'a str);
+let y: Fn(&'static str);
+
+&'static str <: &'a str
+</code>
+          </pre>
+          <p>
+          From category/type theory we know that a subtype T1 of a super type T2 is (loosely a type that can,
+          in all places where a T2 is accepted a T1 can be used instead. But the opposite
+          is not neccecarily true. We can think of T1 being strictly more usefull than T2
+          </p>
+          <p>
+          Everywhere where we want to pass a Fn that takes a 'a str
+      we can NOT pass a 'static the invariants are not the same. Static can only live for static where
+      as 'a can live for any amount. From this we can conclude that: that a function that takes the more general type is the
+          more usefull type. This indicates that the FUNCTION types x and y defined
+          above are contravariant over the type T.
+          </p>
+          <pre style="font-size: 1.5rem; font-weight: bold; padding: 5px;">
+Fn('a str) <: Fn(&'static str) 
+ </code>
+          </pre>
+          <p>
+          See how the subtyping relationship got fliped? before we had static subtying 'a  but now its different.
+               This is effectivly (in my understanding) the deffinition of a change of variance (co to conta).
+          </p>
+
+          <h2>Covariance</h2>
+          <pre style="font-size: 1.5rem; font-weight: bold; padding: 5px;">
+<code class="rust">
+let x: &'static str;
+let y: &'a str;
+&'static str <: &'a str
+</code>
+          </pre>
+
+          <p>
+          References are <strong>covariant</strong> over their lifetime.  
+          A longer lifetime can be safely downgraded to a shorter one.
+          </p>
+
+          <p>
+          What this means (as explained in the functions section) is that the subtype is
+          the “more specific” or more flexible one.  
+          Consider a reference to a
+          <code style="font-size: 1.2rem; font-weight: bold;">T</code>
+                       with lifetime
+                       <code style="font-size: 1.2rem; font-weight: bold;">'a</code> versus
+                       <code style="font-size: 1.2rem; font-weight: bold;">'static</code>.  
+                       Suppose our reference is of lifetime
+                       <code style="font-size: 1.2rem; font-weight: bold;">'b</code>, and
+                       <code style="font-size: 1.2rem; font-weight: bold;">'b</code> may outlive
+                       <code style="font-size: 1.2rem; font-weight: bold;">'a</code>.  
+                       In that case, using it could leave us with an
+                       <strong>invalid pointer</strong>.  
+                       Therefore, a reference to
+                       <code style="font-size: 1.2rem; font-weight: bold;">'static</code>
+                       is always more flexible, because anywhere a shorter-lived reference is needed,
+                       we can safely use the longer-lived one and downgrade it.
+          </p>
+
+          <p>
+          Therefore, the type
+          <code style="font-size: 1.2rem; font-weight: bold;">&'a T</code>
+          is covariant over
+          <code style="font-size: 1.2rem; font-weight: bold;">T</code>.  
+          This means that the subtyping relationship between any
+          <code style="font-size: 1.2rem; font-weight: bold;">T1</code>
+          and
+          <code style="font-size: 1.2rem; font-weight: bold;">T2</code>
+          is preserved when taking a reference.  
+          Unlike the function example discussed earlier, where the subtyping
+          relationship could change due to contravariance in the argument type,
+          a reference does not alter the original type relationship.
+          </p>
+
+<h2>Invariance</h2>
+
+<p>
+  I found this one the hardest to reason about, so let’s motivate it
+  naturally. Suppose we have:
+</p>
+
+<pre style="font-size: 1.5rem; font-weight: bold; padding: 5px;">
+<code class="rust">
+fn assign<T>(input: &mut T, val: T) {
+    *input = val;
+}
+
+fn main() {
+    let mut hello: &'static str = "hello";
+    let world = String::from("world");
+    assign(&mut hello, &world);
+    println!("{hello}");
+}
+</code>
+</pre>
+
+<p>
+  Now let’s try to apply the tools of covariance and contravariance to
+  reason about what happens to the type <code style="font-size: 1.2rem; font-weight=bold;">&amp;mut T</code>.
+</p>
+
+<h3>CASE 1: Contravariance (we can provide a more general T)</h3>
+
+<ol>
+  <li>We assign <code style="font-size: 1.2rem; font-weight=bold;">hello</code> to a <code style="font-size: 1.2rem; font-weight=bold;">'static str</code>.</li>
+  <li>We mutate <code style="font-size: 1.2rem; font-weight=bold;">hello</code> to hold a <code style="font-size: 1.2rem; font-weight=bold;">'a str</code>, where <code style="font-size: 1.2rem; font-weight=bold;">'a</code> is shorter than <code style="font-size: 1.2rem; font-weight=bold;">'static</code>.</li>
+  <li>We later use <code style="font-size: 1.2rem; font-weight=bold;">hello</code>, expecting it to still be <code style="font-size: 1.2rem; font-weight=bold;">'static</code>, but it now refers to a shorter-lived value.</li>
+</ol>
+
+<p>
+  This would allow a shorter lifetime to be written into a location that
+  originally required <code style="font-size: 1.2rem; font-weight=bold;">'static</code>, leading to a potential
+  use-after-free.
+</p>
+
+<h3>CASE 2: Covariance (we can provide a more specific T)</h3>
+
+<ol>
+  <li>We assign <code style="font-size: 1.2rem; font-weight=bold;">hello</code> to a <code style="font-size: 1.2rem; font-weight=bold;">'a str</code>.</li>
+  <li>We mutate <code style="font-size: 1.2rem; font-weight=bold;">hello</code> to hold a <code style="font-size: 1.2rem; font-weight=bold;">'static str</code>.</li>
+  <li>The lifetime relationships become inconsistent, breaking the guarantees the type system is supposed to enforce.</li>
+</ol>
+<p>
+  In both directions, mutation allows us to violate lifetime guarantees.
+  Because <code style="font-size: 1.2rem; font-weight=bold;">&amp;mut T</code> permits writing, neither covariance nor
+  contravariance is sound.
+</p>
+<p>
+  Therefore, we need a new tool: <strong>invariance</strong>. A type
+  constructor <code style="font-size: 1.2rem; font-weight=bold;">F&lt;T&gt;</code> is invariant over <code style="font-size: 1.2rem; font-weight=bold;">T</code>
+  if there is <em>no</em> subtyping relationship between
+  <code style="font-size: 1.2rem; font-weight=bold;">F&lt;T1&gt;</code> and <code style="font-size: 1.2rem; font-weight=bold;">F&lt;T2&gt;</code>, even if
+  <code style="font-size: 1.2rem; font-weight=bold;">T1</code> and <code style="font-size: 1.2rem; font-weight=bold;">T2</code> are in a subtype relationship.
+</p>
+<p>
+  This means that for <code style="font-size: 1.2rem; font-weight=bold;">&amp;mut T</code>, the <code style="font-size: 1.2rem; font-weight=bold;">T</code> must
+  match exactly. If the types differ in any way —  including their
+  lifetimes the assignment is not allowed.
+</p>
+          </pre>
+          <h2>
+            Conclusion
+          </h2>
+          <p>
+          In conclusion this isint really something you're ever gonna run into. But if you do then now you know :). Also for a 
+          more endepth discution of all the type and their variance check out: 
+          <a
+              href="https://doc.rust-lang.org/nomicon/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >
+              rustinomicon
+          </a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="socials-container">
+      <a
+          href="https://linkedin.com/max-faber-"
+          target="_blank"
+          rel="noopener noreferrer"
+          >
+          LinkedIn
+      </a>
+        |
+        <a
+            href="https://github.com/TallCheesecake"
+            target="_blank"
+            rel="noopener noreferrer"
+            >
+            GitHub
+        </a>
+    </div>
+
+    <script type="module">
+      import hljs from "../highlights/es/core.min.js";
+  import rust from "../highlights/es/languages/rust.min.js";
+
+  hljs.registerLanguage("rust", rust);
+
+  document.querySelectorAll("pre code").forEach((block) => {
+    hljs.highlightElement(block);
+  });
+    </script>
+  </body>
+</html>
