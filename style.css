@@ -205,7 +205,7 @@ li.logo {
 }
 .contacts {
   display: flex;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   justify-content: center; /* horizontal only */
   flex-direction: column;  /* stack vertically */
 }
@@ -232,10 +232,17 @@ li.logo {
 .project-card a {
   color: var(--accent-blue); /* default color */
   text-decoration: none;
+  font-size: 1.5rem;
   padding: 8px 0;
   transition: color 0.3s ease, opacity 0.3s ease; /* combine transitions */
 }
 
+.column-left-body h1{
+  font-size: 2.2rem;
+}
+.column-left-body h2{
+  font-size: 1.8rem;
+}
 .project-card h3 {
   font-size: 1.8rem;
 }

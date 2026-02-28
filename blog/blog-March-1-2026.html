@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>maxblog</title>
+    <title>Unsafe LL</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../style.css?v=3">
@@ -42,31 +42,19 @@
 
     <div class="content-container">
       <div class="column-left">
-        <h1>Intro</h1>
-
-        <em>
-          NOTE: A lot of these examples are taken from the
-          <a
-              href="https://doc.rust-lang.org/nomicon/"
-              target="_blank"
-              rel="noopener noreferrer"
-              >
-              rustinomicon
-          </a>
-        </em>
-
         <div class="column-left-body">
           <h1 id="intro-to-unsafe-linked-lists">Intro to Unsafe linked lists</h1>
-          <p>While all my articles are "learning" orientated meaning that they are
-          meant for ME to improve my knowlege by trying to teach it to you. This
-          article is like learning++ meaning that there is defininetly stuff im
-          gonna get really wrong here. That being said, in this article I will be
-          trying to explain the unsafe linked queu from <a
-                                href="https://rust-unofficial.github.io/too-many-lists/fourth-building.html">Learnning rust with too
-          many linked lists</a>.
-                              I will specificly be focusing on miri and the concept of stacked borrows
-                              and a lot of the implimentation specifics will be glossed over.</p>
+          <p>This is a wrapper/commentary/walkthrough of the incredible: 
+        <a
+            href="https://rust-unofficial.github.io/too-many-lists/fourth-building.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            >
+            Learning Rust With Entirely Too Many Linked Lists
+        </a>
+          </p>
           <h2 id="linked-queue">Linked Queue</h2>
+
           <p>A linked queue can be represented like this:</p>
           <pre style="font-size: 1.5rem; font-weight: bold; "><code>[front] -&gt; [] -&gt; [] -&gt; [back] </code></pre>
           <pre style="font-size: 1.5rem; font-weight: bold; "><code>POP: Poped Off([front]) [new front] -&gt; [] -&gt; [back] </code></pre>
@@ -83,15 +71,17 @@ struct Node&lt;T&gt; {
     elem: T,
     next: Link&lt;T&gt;,
 } </code></pre>
-          <p>This seems pretty sane and is infact stollen from <a
-                                                                   href="https://rust-unofficial.github.io/too-many-lists/fourth-building.html">https://rust-unofficial.github.io/too-many-lists/fourth-building.html</a>.
-                                                                 So how do we do POP? well maybe something like</p>
-          <pre style="font-size: 1.5rem; "><code>pub fn push(&amp;mut self, elem: T) {
+<p>
+This seems pretty sane and is, in fact, stolen from <a href="https://rust-unofficial.github.io/too-many-lists/fourth-building.html">https://rust-unofficial.github.io/too-many-lists/fourth-building.html</a>.
+So how do we do POP? Well, maybe something like this:
+</p>
+
+<pre style="font-size: 1.5rem;"><code>pub fn push(&mut self, elem: T) {
     let mut new_tail = Box::new(Node {
         elem: elem,
         next: None,
     });
-    let raw_tail: *mut _ = &amp;mut *new_tail;
+    let raw_tail: *mut _ = &mut *new_tail;
     if !self.tail.is_null() {
         unsafe {
             (*self.tail).next = Some(new_tail);
@@ -100,65 +90,82 @@ struct Node&lt;T&gt; {
         self.head = Some(new_tail);
     }
     self.tail = raw_tail;
-} </code></pre>
-          <p>But there is a problem, and its hiden from the normal borrowchecker.
-          We need miri, a nightly right interpreter, which interprets unoptimized
-          IR output form the rust compiler at runtime. In miri we have a concept
-          of stackd borrows which will be the meat of the remainder of the
-          article.</p>
-          <h3 id="miri-and-stacked-borrows">Miri and Stacked Borrows</h3>
-          <p>If we try and do this</p>
-          <pre style="font-size: 1.5rem; "><code>let mut x = 1;
-let y = &amp;mut x;
-let z = &amp;mut x;
+}</code></pre>
+
+<p>
+But there is a problem, and it's hidden from the normal borrow checker.
+We need Miri, a nightly Rust interpreter, which interprets unoptimized IR output from the Rust compiler at runtime. In Miri, we have a concept of stacked borrows, which will be the meat of the remainder of the article.
+</p>
+
+<h2 id="miri-and-stacked-borrows">Miri and Stacked Borrows</h2>
+
+<p>
+If we try and do this:
+</p>
+
+<pre style="font-size: 1.5rem;"><code>let mut x = 1;
+let y = &mut x;
+let z = &mut x;
 *y += 1;
 *z += 1;
-println!(&quot;{x}&quot;); </code></pre>
-          <p>in normal safe rust this is error out with something like</p>
-          <pre style="font-size: 1.5rem; "><code>[ERROR]: Cannot borrow x as mutable twice </code></pre>
-          <p>And the borrow checker is completly correct here. One of the main
-          asserts of the borrowchecker is that you can only ever have 1 (exculive)
-          mutable borrow out for a variable. Lets extend this to be alittle more
-          general. If you have something like:</p>
-          <pre style="font-size: 1.5rem; "><code>fn do_something(input: &i32) {
+println!("{x}");</code></pre>
+
+<p>
+In normal safe Rust, this will error out with something like:
+</p>
+
+<pre style="font-size: 1.5rem;"><code>[ERROR]: Cannot borrow x as mutable twice</code></pre>
+
+<p>
+And the borrow checker is completely correct here. One of the main asserts of the borrow checker is that you can only ever have one (exclusive) mutable borrow out for a variable. Let's extend this to be a little more general. If you have something like:
+</p>
+
+<pre style="font-size: 1.5rem;"><code>fn do_something(input: &i32) {
     *input = 2
 }
 fn main() {
     let mut y = 1;
     let x = &y;
     do_something(x);
-} </code></pre>
-          <p>x can't, no matter what be derefd to mutate y, be mutated since this is a immutable
-          refrence. This allows for stong pointer reasoning and compiler
-          optimizations. Where things go wrong is</p>
-          <div class="note">
-            <div class="title">
-              <p>Note</p>
-            </div>
-            <p>The following section is adapted from @jung2020stacked.</p>
-          </div>
-          <pre style="font-size: 1.5rem; "><code>unsafe {
-    let mut data = 10;
-    let ALIASE = &amp;mut data as *mut i32; 
-    let ref1 = &amp;mut data; 
-    *ref1 += 1;
-    *ALIASE = 2;
-    println!(&quot;we expect to see: 11 and got: {}&quot;, ref1);
 }</code></pre>
-          <p>Here this will output</p>
-          <pre style="font-size: 1.5rem; "><code>we expect to see: 11 and got: 2 </code></pre>
-          <p>But why? we ALIASE and ref1 BOTH point to data and the borrowchecker
-          has nowlege of the raw mut pointer. This means that it doesn't know that
-          ALIASE exists and naturaly can't stop us from mutating data even though
-          this should be illegal.</p>
-          <p>This is where miri and stacked borrows come in. The concept is as
-          follows, each mut refrence goes on a stack, if you need to use a
-          refrence that is not on the top of that stack, we pop everything above
-          it off and keep going. If something is not on the stack you can't use it
-          as a refrence.</p>
-          <p>The notaion I will use is as follows: stack will start at 0 and grow
-          higher, U is for a exclusive or unique refrence, and ShRW means a Shared
-          Read Write pointer.</p>
+
+<p>
+`x` can't, no matter what, be dereferenced to mutate `y`, because this is an immutable reference. This allows for strong pointer reasoning and compiler optimizations. Where things go wrong is:
+</p>
+
+<div class="note">
+  <div class="title">
+    <p>Note</p>
+  </div>
+  <p>The following code section is adapted from Jung et al's paper<sup>1</sup>.</p>
+</div>
+
+<pre style="font-size: 1.5rem;"><code>unsafe {
+    let mut data = 10;
+    let ALIAS = &mut data as *mut i32; 
+    let ref1 = &mut data; 
+    *ref1 += 1;
+    *ALIAS = 2;
+    println!("we expect to see: 11 and got: {}", ref1);
+}</code></pre>
+
+<p>
+Here, this will output:
+</p>
+
+<pre style="font-size: 1.5rem;"><code>we expect to see: 11 and got: 2</code></pre>
+
+<p>
+But why? We have `ALIAS` and `ref1` BOTH pointing to `data`, but the borrow checker has no knowledge of the raw mutable pointer. This means that it doesn't know that `ALIAS` exists and naturally can't stop us from mutating data, even though this should be illegal.
+</p>
+
+<p>
+This is where Miri and stacked borrows come in. The concept is as follows: each mutable reference goes on a stack. If you need to use a reference that is not on the top of that stack, we pop everything above it off and keep going. If something is not on the stack, you can't use it as a reference.
+</p>
+
+<p>
+The notation I will use is as follows: the stack will start at 0 and grow higher. `U` stands for an exclusive or unique reference, and `ShRW` means a Shared Read-Write pointer.
+</p>
           <pre style="font-size: 1.5rem; "><code>unsafe {
     let mut data = 10; // 0 U
     let ALIASE = &amp;mut data as *mut i32; // ShRW
@@ -182,18 +189,15 @@ fn main() {
     //shared unique refrence is invalid.
     println!(&quot;we expect to see: 11 and got: {}&quot;, ref1); 
     } </code></pre>
-          <p>
-          Above we can see that we have a pointer aliase and that data is illegaly modified. Without the stack model miri
-          would not know that this is ub. As commented above, the refrence to data is considered a "use" in the loosest 
-          sense of the word. This means that when we pop ShRW pointer ALIASE of the borrow stack to allow for ref1 to exist
-          we can't then use ALIASE later to cause UB.
-          </p>
+<p>
+Above we can see that we have a pointer alias and that data is illegally modified. Without the stack model, Miri would not know that this is UB. As commented above, the reference to data is considered a "use" in the loosest sense of the word. This means that when we pop the SharedReadWrite pointer alias off the borrow stack to allow for `ref1` to exist, we can't then use the alias later to cause UB.
+</p>
           <h2>
             UB and linked lists
           </h2>
-          <p>
-          The reaon we even care about this is because in the code snippet
-          <\p>
+<p>
+The reason we even care about this is because of the code snippet from the `push` method a little bit ago.
+</p>
           <pre style="font-size: 1.5rem; "><code> let mut new_tail = Box::new(Node {
         elem: elem,
         next: None,
@@ -207,9 +211,9 @@ fn main() {
         self.head = Some(new_tail);
     }
     self.tail = raw_tail; </code></pre>
-          <p>
-            We actualy have this occur and miri catches it 
-          </p>
+<p>
+We actually have this occur, and Miri catches it.
+</p>
 
           <pre style="font-size: 1.5rem; "><code> help: <122538> was created by a SharedReadWrite retag at offsets [0x0..0x10]
    --> src/lib.rs:30:32
@@ -221,14 +225,48 @@ help: <122538> was later invalidated at offsets [0x0..0x10] by a Unique retag
     |
  42 |             self.head = Some(new_tail);
     |                              ^^^^^^^^ </code></pre>
+<p>
+What this means is that right now two things point to `new_tail`: the raw pointer `raw_tail` and the list struct's head pointer. This means that someone can, through the `raw_tail`, mutate the `new_tail` pointer to point to something undefined :(
+</p>
           <p>
-          What this means is that right now two things point to new_tail, the raw pointer "raw_tail" and the list structs head pointer.
-          This means that someone can, thorugh the "raw_tail" mutate the new_tail pointer to point to something undefined :(.
+          Something like:
           </p>
-          <p>
-          To bo coverd: Once a shared reference is on the borrow-stack, everything that gets pushed on top of it only has read permissions. </br>
-          To bo coverd: Once a shared reference is on the borrow-stack, everything that gets pushed on top of it only has read permissions.
-          </p>
+          <pre style="font-size: 1.5rem; "><code>self.head = Some(new_tail);
+*raw_tail = evil_memory;
+//Now self.head points to evil_memory :( </code></pre>
+
+<p>
+The underlying problem here is that we are trying to mix safe and unsafe code in a way that conflicts with guarantees. `Box`, which we are currently using to make links in our linked list, owns its data and effectively acts as a `&mut`. It would make our lives a lot easier if we could mutate this more easily. We are already using unsafe code, so having the `Box` there isn't really doing anything for us. Let's instead use:
+</p>
+          <pre style="font-size: 1.5rem; "><code>type Link<T> = *mut Node<T>;</code></pre>
+          <p>and</p>
+          <pre style="font-size: 1.5rem; "><code>pub fn push(&mut self, elem: T) {
+    unsafe {
+        // Immediately convert the Box into a raw pointer
+        let new_tail = Box::into_raw(Box::new(Node {
+            elem: elem,
+            next: ptr::null_mut(),
+        }));
+
+        if !self.tail.is_null() {
+            (*self.tail).next = new_tail;
+        } else {
+            self.head = new_tail;
+        }
+
+        self.tail = new_tail;
+    }
+}</code></pre>
+<p>
+Here’s what we’ve achieved: `new_tail` will no longer be optimized to assume exclusive ownership. And everything else works just fine!!!
+</p>
+<p>
+And frankly, that's it - those are the important parts. Everything else is just filling out the rest of the methods.
+</p>
+
+<h2>Refrences</h2>
+<p>[1] Ralf Jung, Hoang-Hai Dang, Jeehoon Kang, and Derek Dreyer. 2020. Stacked Borrows: An Aliasing Model for
+Rust. Proc. ACM Program. Lang. 4, POPL, Article 41 (January 2020), 32 pages. https://doi.org/10.1145/3371109</p>
         </div>
       </div>
     </div>
@@ -249,6 +287,7 @@ help: <122538> was later invalidated at offsets [0x0..0x10] by a Unique retag
             >
             GitHub
         </a>
+
     </div>
 
     <script type="module">
