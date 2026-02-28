@@ -8,10 +8,11 @@
 /* layout and design */
 body {
   margin: 0;
-  background: #000;
+  background: var(--bg-dark);
   color: rgba(255, 255, 255, 0.9);
   font-family: "JetBrains Mono", monospace;
 }
+
 ul {
   list-style-type: none;
   align-items: baseline;
@@ -30,7 +31,7 @@ ul a {
   color: rgba(255, 255, 255, 0.9); /* default text */
   text-decoration: none;
   padding: 8px 0;
-  font-size: 0.875rem;
+  font-size: 1.2rem;
   transition: color 0.3s ease, opacity 0.3s ease; /* combine transitions */
 }
 
@@ -44,12 +45,12 @@ nav {
   z-index: 1000; /* make sure it’s above other content */
     top: 0;      /* stick to the top */
 	padding: 12px;
-  background: var(--bg-dark);
+  background: #000;
 	border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .logo a {
-  font-size: 1.125rem;
+  font-size: 1.5rem;
   /* border-bottom: 1px solid var(--accent); */
   font-weight: 500;
 }
@@ -88,7 +89,7 @@ li.logo {
 .column-toc {
   flex: 1;
   color: rgba(255, 255, 255, 0.65);
-  font-size: 0.9rem;
+  font-size: 1.2rem;
 }
 
 .column-left header,
@@ -156,7 +157,26 @@ li.logo {
 	gap: 50px;                  /* optional spacing between columns */ 
 }
 
+.column-left-body pre,
+.column-left-body pre code {
+    margin: 0;                  /* remove default top/bottom spacing */
+    padding: 2px 6px;           /* very tight padding */
+    line-height: 1.2;           /* tighter line spacing */
+    font-size: 1.5rem;          /* keep your size */
+    font-weight: bold;           /* keep bold */
+    white-space: pre-wrap;      /* wrap long lines instead of horizontal scroll */
+}
+.column-left p {
+	font-size: 1.5rem;
+}
+.column-left-body p {
+	font-size: 1.5rem;
+}
+.column-left-about {
+	font-size: 1.5rem;
+}
 .column-left-body a {
+  font-size: 1.5rem;
   color: var(--accent-blue); /* default color */
   text-decoration: none;
   padding: 8px 0;
@@ -183,9 +203,9 @@ li.logo {
   padding: 0 24px;          
   box-sizing: border-box;   /* ensures padding doesn't break max-width */
 }
-
 .contacts {
   display: flex;
+  font-size: 1.2rem;
   justify-content: center; /* horizontal only */
   flex-direction: column;  /* stack vertically */
 }
@@ -209,8 +229,6 @@ li.logo {
   padding: 24px 32px;
   min-width: 220px;
 }
-
-
 .project-card a {
   color: var(--accent-blue); /* default color */
   text-decoration: none;
@@ -218,6 +236,9 @@ li.logo {
   transition: color 0.3s ease, opacity 0.3s ease; /* combine transitions */
 }
 
+.project-card h3 {
+  font-size: 1.8rem;
+}
 .project-card a:hover {
   opacity: 0.7;
   color: var(--accent-blue);

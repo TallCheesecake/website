@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>$title$</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../style.css?v=3">
+    <link rel="stylesheet" href="../highlights/styles/atom-one-dark.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <li class="logo">
+          <a href="../index.html">
+            Portfolio
+          </a>
+        </li>
+        <li>
+          <a href="../index.html">
+            Home
+          </a>
+        </li>
+        <li>
+          <a href="../blog.html">
+            Blog 
+          </a>
+        </li>
+        <li>
+          <a href="../project.html">
+            Projects
+          </a>
+        </li>
+        <li>
+          <a href="../contact.html">
+            Contact
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="content-container">
+      <div class="column-left">
+        <div class="column-left-body">
+    $body$
+        </div>
+      </div>
+    </div>
+
+    <div class="socials-container">
+      <a
+          href="https://linkedin.com/max-faber-"
+          target="_blank"
+          rel="noopener noreferrer"
+          >
+          LinkedIn
+      </a>
+        |
+        <a
+            href="https://github.com/TallCheesecake"
+            target="_blank"
+            rel="noopener noreferrer"
+            >
+            GitHub
+        </a>
+    </div>
+
+    <script type="module">
+      import hljs from "../highlights/es/core.min.js";
+  import rust from "../highlights/es/languages/rust.min.js";
+
+  hljs.registerLanguage("rust", rust);
+
+  document.querySelectorAll("pre code").forEach((block) => {
+    hljs.highlightElement(block);
+  });
+    </script>
+  </body>
+</html>

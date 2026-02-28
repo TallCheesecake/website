@@ -1,0 +1,43 @@
+#+TITLE: Unsafe Rust PT2
+#+AUTHOR: Jane Doe
+#+DATE: 2026-02-26
+#+DESCRIPTION: Small test file for org → pandoc → html template pipeline
+#+OPTIONS: toc:t num:t
+
+* Into
+
+BODY 
+
+- Bullet lists
+- *Bold text*
+- /Italic text/
+- =Inline code=
+- _Underline_
+- +Strike-through+
+
+Here is a link:
+[[https://example.com][Example Website]]
+
+* Lists
+
+** Ordered
+1. First item
+2. Second item
+3. Third item
+
+* Code Block
+
+
+#+BEGIN_SRC python
+def hello(name):
+    return f"Hello, {name}!"
+
+print(hello("world"))
+#+END_SRC
+
+
+* Horizontal Rule
+-----
+* Conclusion
+
+Hello

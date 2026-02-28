@@ -1,0 +1,148 @@
+<html>
+  <head>
+    <title>Pandoc Org Test</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../style.css?v=3">
+    <link rel="stylesheet" href="../highlights/styles/base16/black-metal-mayhem.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <li class="logo">
+          <a href="../index.html">
+            Portfolio
+          </a>
+        </li>
+        <li>
+          <a href="../index.html">
+            Home
+          </a>
+        </li>
+        <li>
+          <a href="../blog.html">
+            Blog 
+          </a>
+        </li>
+        <li>
+          <a href="../project.html">
+            Projects
+          </a>
+        </li>
+        <li>
+          <a href="../contact.html">
+            Contact
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="content-container">
+      <div class="column-left">
+        <div class="column-left-body">
+    <h1 id="introduction">Introduction</h1>
+    <p>This is a <strong>simple</strong> Org file to test
+    <em>Pandoc</em> conversion.</p>
+    <p>You can have:</p>
+    <ul>
+    <li>Bullet lists</li>
+    <li><strong>Bold text</strong></li>
+    <li><em>Italic text</em></li>
+    <li><code class="verbatim">Inline code</code></li>
+    <li><u>Underline</u></li>
+    <li><del>Strike-through</del></li>
+    </ul>
+    <p>Here is a link: <a href="https://example.com">Example
+    Website</a></p>
+    <h1 id="lists">Lists</h1>
+    <h2 id="ordered">Ordered</h2>
+    <ol>
+    <li>First item</li>
+    <li>Second item</li>
+    <li>Third item</li>
+    </ol>
+    <h2 id="nested">Nested</h2>
+    <ul>
+    <li>Parent
+    <ul>
+    <li>Child
+    <ul>
+    <li>Grandchild</li>
+    </ul></li>
+    </ul></li>
+    </ul>
+    <h1 id="code-block">Code Block</h1>
+    <p>Here is a source block:</p>
+    <div class="sourceCode" id="cb1"><pre
+    class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> hello(name):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f&quot;Hello, </span><span class="sc">{</span>name<span class="sc">}</span><span class="ss">!&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(hello(<span class="st">&quot;world&quot;</span>))</span></code></pre></div>
+    <h1 id="table">Table</h1>
+    <table>
+    <thead>
+    <tr>
+    <th>Name</th>
+    <th>Language</th>
+    <th>Lines</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+    <td>Project A</td>
+    <td>Python</td>
+    <td>120</td>
+    </tr>
+    <tr>
+    <td>Project B</td>
+    <td>Rust</td>
+    <td>95</td>
+    </tr>
+    </tbody>
+    </table>
+    <h1 id="quote">Quote</h1>
+    <blockquote>
+    <p>Simplicity is prerequisite for reliability.</p>
+    </blockquote>
+    <h1 id="horizontal-rule">Horizontal Rule</h1>
+    <hr />
+    <h1 id="conclusion">Conclusion</h1>
+    <p>If this renders correctly in your custom template, your pipeline
+    works.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="socials-container">
+      <a
+          href="https://linkedin.com/max-faber-"
+          target="_blank"
+          rel="noopener noreferrer"
+          >
+          LinkedIn
+      </a>
+        |
+        <a
+            href="https://github.com/TallCheesecake"
+            target="_blank"
+            rel="noopener noreferrer"
+            >
+            GitHub
+        </a>
+    </div>
+
+    <script type="module">
+      import hljs from "../highlights/es/core.min.js";
+  import rust from "../highlights/es/languages/rust.min.js";
+
+  hljs.registerLanguage("rust", rust);
+
+  document.querySelectorAll("pre code").forEach((block) => {
+    hljs.highlightElement(block);
+  });
+    </script>
+  </body>
+</html>
