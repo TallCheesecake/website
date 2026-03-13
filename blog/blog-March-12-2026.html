@@ -52,7 +52,7 @@
     <h2 id="current-structure">Current Structure</h2>
     <p>The current structure is as follows: Scanner → Parser → Resolver
     → Codegen</p>
-    <h3 id="resolver">Resolver</h3>
+    <h3 style="font-size: 1.4rem"id="resolver">Resolver</h3>
     <p>By far the most interesting section of the system is the
     resolver. I have chosen to (for now, to keep things simple and
     manageable) use a stack-based scoping structure.</p>
@@ -60,22 +60,22 @@
     class="sourceCode rust"><code class="sourceCode rust"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">struct</span> Resolver <span class="op">{</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">pub</span> ast<span class="op">:</span> <span class="pp">parser::</span>Parser<span class="op">,</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">pub</span> current_id<span class="op">:</span> <span class="dt">usize</span><span class="op">,</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">;;</span> Variable scopes</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">//</span> Variable scopes</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">pub</span> vscope<span class="op">:</span> <span class="dt">Vec</span><span class="op">&lt;</span>Scope<span class="op">&gt;,</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">;;</span> Functions <span class="kw">as</span> declared <span class="kw">in</span> scope</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">//</span> Functions <span class="kw">as</span> declared <span class="kw">in</span> scope</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">pub</span> fscope<span class="op">:</span> <span class="dt">Vec</span><span class="op">&lt;</span>FunctionInfo<span class="op">&gt;,</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">;;</span> Function calls</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">//</span> Function calls</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">pub</span> func_table<span class="op">:</span> HashMap<span class="op">&lt;</span><span class="dt">String</span><span class="op">,</span> <span class="dt">usize</span><span class="op">&gt;,</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">;;</span> Functions <span class="kw">as</span> declared <span class="kw">in</span> scope</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">//</span> Functions <span class="kw">as</span> declared <span class="kw">in</span> scope</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">pub</span> cscope<span class="op">:</span> <span class="dt">Vec</span><span class="op">&lt;</span>ClassInfo<span class="op">&gt;,</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">;;</span> Class calls</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">//</span> Class calls</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">pub</span> class_table<span class="op">:</span> HashMap<span class="op">&lt;</span><span class="dt">String</span><span class="op">,</span> <span class="dt">usize</span><span class="op">&gt;,</span></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
     <p>That is the current state (pun intended) of the resolver. Using a
     vector of structs and a DFS search of the AST allows for effectively
     infinite scoping while being (relatively) easy to implement. Simply
     popping scopes off when you leave the scope. Scopes are implemented
-    as an operator applied to a `Tree` struct.</p>
+    as an operator applied to a `Tree` enum.</p>
     <div class="sourceCode" id="cb2"><pre
     class="sourceCode rust"><code class="sourceCode rust"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">enum</span> Tree <span class="op">{</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cn">Nil</span><span class="op">,</span></span>
