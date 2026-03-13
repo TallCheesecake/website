@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Lox Update</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../style.css?v=3">
+    <link rel="stylesheet" href="../highlights/styles/atom-one-dark.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+  </head>
+<body>
+    <nav>
+      <ul>
+        <li class="logo">
+          <a href="../index.html">
+            Portfolio
+          </a>
+        </li>
+        <li>
+          <a href="../index.html">
+            Home
+          </a>
+        </li>
+        <li>
+          <a href="../blog.html">
+            Blog 
+          </a>
+        </li>
+        <li>
+          <a href="../project.html">
+            Projects
+          </a>
+        </li>
+        <li>
+          <a href="../contact.html">
+            Contact
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+  <main>
+    <div class="content-container">
+      <div class="column-left">
+        <div class="column-left-body">
+    <h1 id="intro">Intro</h1>
+    <p>This blog is simply an update on the front end of my interpreter.
+    I anticipate being finished with the resolver by the 3rd week of
+    March.</p>
+    <h2 id="current-structure">Current Structure</h2>
+    <p>The current structure is as follows: Scanner → Parser → Resolver
+    → Codegen</p>
+    <h3 id="resolver">Resolver</h3>
+    <p>By far the most interesting section of the system is the
+    resolver. I have chosen to (for now, to keep things simple and
+    manageable) use a stack-based scoping structure.</p>
+    <div class="sourceCode" id="cb1"><pre
+    class="sourceCode rust"><code class="sourceCode rust"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">struct</span> Resolver <span class="op">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">pub</span> ast<span class="op">:</span> <span class="pp">parser::</span>Parser<span class="op">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">pub</span> current_id<span class="op">:</span> <span class="dt">usize</span><span class="op">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">;;</span> Variable scopes</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">pub</span> vscope<span class="op">:</span> <span class="dt">Vec</span><span class="op">&lt;</span>Scope<span class="op">&gt;,</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">;;</span> Functions <span class="kw">as</span> declared <span class="kw">in</span> scope</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">pub</span> fscope<span class="op">:</span> <span class="dt">Vec</span><span class="op">&lt;</span>FunctionInfo<span class="op">&gt;,</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">;;</span> Function calls</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">pub</span> func_table<span class="op">:</span> HashMap<span class="op">&lt;</span><span class="dt">String</span><span class="op">,</span> <span class="dt">usize</span><span class="op">&gt;,</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">;;</span> Functions <span class="kw">as</span> declared <span class="kw">in</span> scope</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">pub</span> cscope<span class="op">:</span> <span class="dt">Vec</span><span class="op">&lt;</span>ClassInfo<span class="op">&gt;,</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">;;</span> Class calls</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">pub</span> class_table<span class="op">:</span> HashMap<span class="op">&lt;</span><span class="dt">String</span><span class="op">,</span> <span class="dt">usize</span><span class="op">&gt;,</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+    <p>That is the current state (pun intended) of the resolver. Using a
+    vector of structs and a DFS search of the AST allows for effectively
+    infinite scoping while being (relatively) easy to implement. Simply
+    popping scopes off when you leave the scope. Scopes are implemented
+    as an operator applied to a `Tree` struct.</p>
+    <div class="sourceCode" id="cb2"><pre
+    class="sourceCode rust"><code class="sourceCode rust"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">enum</span> Tree <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cn">Nil</span><span class="op">,</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    ExprStatement(<span class="dt">Vec</span><span class="op">&lt;</span>Tree<span class="op">&gt;</span>)<span class="op">,</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    Var(<span class="dt">String</span><span class="op">,</span> Rc<span class="op">&lt;</span>Tree<span class="op">&gt;</span>)<span class="op">,</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    Class <span class="op">{</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        name<span class="op">:</span> Atom<span class="op">,</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        fields<span class="op">:</span> <span class="dt">Vec</span><span class="op">&lt;</span>Rc<span class="op">&lt;</span>Atom<span class="op">&gt;&gt;,</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        members<span class="op">:</span> <span class="dt">Vec</span><span class="op">&lt;</span>Tree<span class="op">&gt;,</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">},</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    Call <span class="op">{</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        callee<span class="op">:</span> Rc<span class="op">&lt;</span>Tree<span class="op">&gt;,</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        arguments<span class="op">:</span> <span class="dt">Vec</span><span class="op">&lt;</span>Tree<span class="op">&gt;,</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">},</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    Atom(Atom)<span class="op">,</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    NonTerm(Op<span class="op">,</span> <span class="dt">Vec</span><span class="op">&lt;</span>Tree<span class="op">&gt;</span>)<span class="op">,</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    Op(Op)<span class="op">,</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    Fun <span class="op">{</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        name<span class="op">:</span> Rc<span class="op">&lt;</span>Tree<span class="op">&gt;,</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        parameters<span class="op">:</span> <span class="dt">Vec</span><span class="op">&lt;</span>Rc<span class="op">&lt;</span>Tree<span class="op">&gt;&gt;,</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>        body<span class="op">:</span> Rc<span class="op">&lt;</span>Tree<span class="op">&gt;,</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">},</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+    <p>You end up with an S-expression-like syntax of: `(group
+    NonTerm[x, y, z])`. This naturally leads to a non-homogeneous AST,
+    and since I deemed mutating that AST a bad idea, that leads us into
+    the visitor pattern.</p>
+    <p>The visitor pattern is a design pattern where you split the data
+    from the algorithm. This is incredibly useful since, in Rust, shared
+    mutable state is not allowed, and doing so correctly with
+    `Option&lt;Rc&lt;RefCell&gt;&gt;` is a nightmare, especially since
+    `Tree` does not implement `Copy`.</p>
+    <p>The pattern allows me to qualify and analyze the user input
+    (scoping and arity resolution) without touching the AST. This not
+    only preserves the AST for later potential use but also means we can
+    use a 2-pass architecture without having to handle 2 different tree
+    structures.</p>
+    <h1 id="conclusion-future">Conclusion &amp; Future</h1>
+    <p>The IR (Intermediate Representation) I will be using needs to do
+    two things:</p>
+    <ol>
+    <li style="font-size: 1.5rem">It must be easy to turn into bytecode.</li>
+    <li style="font-size: 1.5rem">It must permit me to perform simple optimizations in the
+    future.</li>
+    </ol>
+    <p>When I set out to make an interpreter, an optimizing IR was one
+    of the most interesting things about the project. However, since I
+    don't have a degree in CS and am a full-time student, I need to pick
+    something relatively easy to implement. Given that and the above two
+    requirements, I will be using an LLVM-style Linear SSA.</p>
+    <p>I've frankly not yet fully wrapped my mind around phi nodes and
+    other nuances, so I won't be able to give a great explanation, but
+    the gist is:</p>
+    <div class="sourceCode" id="cb3"><pre
+    class="sourceCode rust"><code class="sourceCode rust"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> x <span class="op">=</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> x <span class="op">=</span> x <span class="op">+</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> z <span class="op">=</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">1</span><span class="op">;</span></span></code></pre></div>
+    <p>Here, if we convert this to SSA, we get:</p>
+    <div class="sourceCode" id="cb4"><pre
+    class="sourceCode rust"><code class="sourceCode rust"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> x_1 <span class="op">=</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> x_2 <span class="op">=</span> x_1 <span class="op">+</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> z_1 <span class="op">=</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">1</span><span class="op">;</span></span></code></pre></div>
+    <p>This leads to the natural optimization that:</p>
+    <div class="sourceCode" id="cb5"><pre
+    class="sourceCode rust"><code class="sourceCode rust"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>z_1 <span class="op">=</span> x_1</span></code></pre></div>
+    <p>Saving us a math operation.</p>
+    <p>Anyways, that's it. Thanks!</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>Generated with Pandoc</p>
+  </footer>
+    <script type="module">
+      import hljs from "../highlights/es/core.min.js";
+  import rust from "../highlights/es/languages/rust.min.js";
+
+  hljs.registerLanguage("rust", rust);
+
+  document.querySelectorAll("pre code").forEach((block) => {
+    hljs.highlightElement(block);
+  });
+    </script>
+</body>
+</html>
